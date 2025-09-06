@@ -14,7 +14,16 @@ int main(void)
 
 	/* ---------------- LOGGING ---------------- */
 
-	logger = iniciar_logger();
+t_log* iniciar_logger(void) {
+    t_log *logger;
+    if((logger = log_create("tp0.log", "TP0", 1, LOG_LEVEL_INFO)) == NULL) {
+        printf("No pude crear el logger\n");
+        exit(1);
+    }
+    return logger;
+}
+
+
 
 	// Usando el logger creado previamente
 	// Escribi: "Hola! Soy un log"
@@ -22,7 +31,19 @@ int main(void)
 
 	/* ---------------- ARCHIVOS DE CONFIGURACION ---------------- */
 
-	config = iniciar_config();
+	t_config* iniciar_config(void)
+{
+    t_config* nuevo_config;
+
+    nuevo_config = config_create("tp0.config");
+    if (nuevo_config == NULL) {
+        printf("No se pudo leer el archivo de configuración\n");
+        exit(2);
+    }
+
+    return nuevo_config;
+}
+
 
 	// Usando el config creado previamente, leemos los valores del config y los 
 	// dejamos en las variables 'ip', 'puerto' y 'valor'
@@ -32,7 +53,20 @@ int main(void)
 
 	/* ---------------- LEER DE CONSOLA ---------------- */
 
-	leer_consola(logger);
+	void leer_consola(t_log* logger)
+{
+    char* leido;
+
+    leido = readline("> ");
+    while (strlen(leido) > 0) {
+        log_info(logger, leido);
+        free(leido);
+        leido = readline("> ");
+    }
+
+    free(leido); // liberar el último string vacío
+}
+
 
 	/*---------------------------------------------------PARTE 3-------------------------------------------------------------*/
 
@@ -44,9 +78,31 @@ int main(void)
 	// Enviamos al servidor el valor de CLAVE como mensaje
 
 	// Armamos y enviamos el paquete
-	paquete(conexion);
+	void paquete(int conexion)
+{
+    char* leido;
+    t_paquete* paquete = crear_paquete();
 
-	terminar_programa(conexion, logger, config);
+    leido = readline("> ");
+    while (strlen(leido) > 0) {
+        agregar_a_paquete(paquete, leido, strlen(leido)+1);
+        free(leido);
+        leido = readline("> ");
+    }
+    free(leido);
+
+    enviar_paquete(paquete, conexion);
+    eliminar_paquete(paquete);
+}
+
+
+	void terminar_programa(int conexion, t_log* logger, t_config* config)
+{
+    liberar_conexion(conexion);
+    log_destroy(logger);
+    config_destroy(config);
+}
+
 
 	/*---------------------------------------------------PARTE 5-------------------------------------------------------------*/
 	// Proximamente
