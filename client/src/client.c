@@ -18,7 +18,7 @@ int main(void)
 
 	/* ---------------- LOGGING ---------------- */
 	logger = iniciar_logger();
-	log_info(logger, "soy un log nuevo");
+	log_info(logger, "soy un log nuevo y funciono bien");
 
 	config = leer_config();
 
